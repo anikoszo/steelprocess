@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gas Measurement and Process Status</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: black;
+            background-color: black;
+
+        }
+        .container{
+            display: flex;
+            flex-direction: row;
+        }
+
+        .gas-value {
+            background-color: white;
+            margin: 20px;
+            padding: 30px;
+            color:black;
+        }
+
+        .orange-box {
+            text-align: center;
+            font-size: 18px;
+            width: 300px;
+
+        }
+
+        .process_status {
+            border-radius: 1%;
+            padding: 10%;
+            margin: 10px;
+            text-align: center;
+            color: white;
+        }
+        #process-label{
+            color: white;
+        }
+        #gas_measurement {
+            color: black;
+            font-size: 34px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+<body>
+<div class="container">
+    <div class="gas-value">
+        <h1>Gas value</h1>
+        <h2 id="gas_measurement">Loading...</h2>
+    </div>
+
+    <div class="orange-box">
+        <h2 id="process-label">Status</h2>
+        <h2 class="process_status">Loading...</h2>
+    </div>
+</div>
+<script>
+
+    // Function to update gas measurement every 1 seconds
+    function updateGasMeasurement() {
+        $.ajax({
+            url: '/get_gas_measurement',
+            dataType: 'json',
+            success: function (data) {
+                $('#gas_measurement').text(data.gas_measurement_value);
+                // condition to modify the color based on predicted values
+                if (data.color === 'orange') {
+                    $('.process_status').text("need more blow").css('background-color', 'rgba(238,242,248,0.2)');
+                } else if (data.color === 'green') {
+                    $('.process_status').text("should stop here").css('background-color', 'green');
+                } else if (data.color === 'red') {
+                    $('.process_status').text("too much already").css('background-color', 'red');
+                }
+            },
+            complete: function () {
+                // Repeat the update every 1 seconds
+                setTimeout(updateGasMeasurement, 1000);
+            }
+        });
+    }
+
+    // Initial call to start updating gas measurement
+    updateGasMeasurement();
+</script>
+</body>
+</html>
